@@ -1,4 +1,5 @@
 #include <DHT.h>
+#include <WiFi.h>
 
 // ====== PINAGEM ======= //
 // Higrômetro
@@ -15,6 +16,13 @@
 // 4 --> GND
 #define DHTPIN 23
 #define DHTTYPE DHT11
+
+
+// WIFI
+
+const char* WIFI_SSID = "Nuxei";
+const char* WIFI_PASS =  "caquinho";
+
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -41,9 +49,29 @@ int lerSensorTemperatura() {
   return leituraTemperatura;
 }
 
+void conectarWifi() {
+  digitalWrite(LED_BUILTIN, LOW);
+  while (WiFi.status() != WL_CONNECTED) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(500);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(500);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(500);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
+    Serial.println("Conectando a WiFi..");
+  }
+  digitalWrite(LED_BUILTIN, HIGH);
+  Serial.print("Rede sem fio conectada! Endereco: ");
+  Serial.println(WiFi.localIP());
+}
+
 void setup() {
   Serial.begin(9600);
-  dht.begin();
+  dht.begin();  
+  pinMode(LED_BUILTIN, OUTPUT);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
 }
 
 void loop() { 
@@ -56,5 +84,8 @@ void loop() {
   Serial.print(leituraUmidade);
   Serial.print("% / Temperatura: ");
   Serial.println(leituraTemperatura);
+  
+  conectarWifi();
   delay(1000);
+  
 }
