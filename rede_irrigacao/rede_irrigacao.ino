@@ -18,10 +18,16 @@
 #define DHTTYPE DHT11
 
 
+// Pino de irrigacao
+#define IRRIG_PIN 4
+
 // WIFI
 
 const char* WIFI_SSID = "Nuxei";
 const char* WIFI_PASS =  "caquinho";
+
+
+
 
 
 DHT dht(DHTPIN, DHTTYPE);
@@ -67,14 +73,43 @@ void conectarWifi() {
   Serial.println(WiFi.localIP());
 }
 
+int buscarTempoIrrigacao(int higr, int umid, int temp) {
+  /* TO-DO: aqui deve-se implementar a função que testa os valores
+     para acionar o sistema de irrigação
+     via webservice implementado no sinknode.
+     O valor de retorno deve ser o tempo que 
+     deve manter o sistema de irrigacao ligado.
+  */
+  // por enquanto, só se baseia em um valor padrão fixo do higrômetro ( < 25%).
+  if (higr < 25){
+    return 1500; // manter ligado por 1.5s
+  } else {
+    return 0;
+  }  
+}
+
+void ligarIrrigacao(int tempoIrrigacao) {
+  Serial.println("Ligando o sistema de irrigação...");
+  digitalWrite(IRRIG_PIN, HIGH); // ligando sistema de irrigação
+  delay(tempoIrrigacao);         // pausa 
+  desligarIrrigacao();           // desligar para evitar excessos de consumo de água
+}
+
+void desligarIrrigacao() {
+  Serial.println("Desligando o sistema de irrigação...");
+  digitalWrite(IRRIG_PIN, LOW);
+}
+
 void setup() {
   Serial.begin(9600);
   dht.begin();  
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(IRRIG_PIN, OUTPUT);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
 }
 
-void loop() { 
+void loop() {  
+  conectarWifi();
   int leituraUmidade = lerSensorUmidadeAr();  
   int leituraTemperatura = lerSensorTemperatura();
   int leituraHigrometro = lerSensorHigrometro();
@@ -83,9 +118,12 @@ void loop() {
   Serial.print("% / Umidade: ");
   Serial.print(leituraUmidade);
   Serial.print("% / Temperatura: ");
-  Serial.println(leituraTemperatura);
-  
-  conectarWifi();
-  delay(1000);
-  
+  Serial.println(leituraTemperatura); 
+  int tempoIrrigacao = buscarTempoIrrigacao(leituraHigrometro, leituraUmidade, leituraTemperatura);  
+  if (tempoIrrigacao > 0) {
+    ligarIrrigacao(tempoIrrigacao);
+  } else {
+    desligarIrrigacao();
+  }  
+  delay(3000);  
 }
