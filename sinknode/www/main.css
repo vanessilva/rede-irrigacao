@@ -1,0 +1,35 @@
+#main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 2em 2em 0 2em;
+}
+h1 {
+    margin-bottom: 1em
+}
+
+.card-body {
+    padding: .5em
+}
+
+.card-deck {
+    margin-bottom: 1em;
+}
+
+.icone {
+    height: 24px;
+    width: 24px;
+    background-position: center;
+    background-size: cover;
+    display: inline-block;
+    background-color: transparent;
+    border: 0;
+    font-size: 0;
+}
+
+.editar {
+    background-image: url('edit.png');
+}
+
+.grafico {
+    background-image: url('chart.ico');
+}
